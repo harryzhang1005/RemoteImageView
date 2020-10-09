@@ -56,4 +56,8 @@ public class RemoteImageFetcher: ObservableObject {
 		return url
 	}
 	
+	public func purge() {
+		imageData = Data()
+	}
+	
 }
