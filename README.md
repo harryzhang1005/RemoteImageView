@@ -1,3 +1,4 @@
 # RemoteImageView
 
-A description of this package.
+This library contains a SwiftUI view that renders an image with either the data fetched from a RemoteImageFetcher or
+a placeholder provided during initialization.
