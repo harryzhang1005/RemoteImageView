@@ -28,50 +28,59 @@
 
 import SwiftUI
 
-// This struct contains a SwiftUI view that renders an image with either the data fetched from a RemoteImageFetcher or
-// a placeholder provided during initialization.
+// This struct returns a SwiftUI View that renders an image with either the data fetched from a RemoteImageFetcher or
+// a placeholder image provided during initialization.
 public struct RemoteImageView<Content: View>: View {
 	
+	// !!!: When remote image fetcher finish image downloading, this var will update UI automatically
 	@ObservedObject var imageFetcher: RemoteImageFetcher
 	
 	var content: (_ image: Image) -> Content
-	let placeholder: Image
+	let placeholderImage: Image // placeholder image
 	
 	@State var previousURL: URL? = nil
 	@State var imageData: Data = Data()
 	
+	// MARK: - Public APIs
+	
 	public init(placeholder: Image,
 				imageFetcher: RemoteImageFetcher,
 				content: @escaping (_ image: Image) -> Content) {
-		self.placeholder = placeholder
+		self.placeholderImage = placeholder
 		self.imageFetcher = imageFetcher
 		self.content = content
 	}
 	
 	// Note: When you move the code into a package, you also need to make sure the struct and body property is public.
     public var body: some View {
+		
 		DispatchQueue.main.async {
-			if self.previousURL != self.imageFetcher.getURL() {
+			if self.previousURL != self.imageFetcher.getURL() { // need update URL
 				self.previousURL = self.imageFetcher.getURL()
 			}
 			
-			if !self.imageFetcher.imageData.isEmpty {
+			if !self.imageFetcher.imageData.isEmpty { // update image data
 				self.imageData = self.imageFetcher.imageData
 			}
 		}
 		
+		// Data -> UIImage -> Image
 		let uiImage = imageData.isEmpty ? nil : UIImage(data: imageData)
-		let image = uiImage != nil ? Image(uiImage: uiImage!) : nil
+		let image: Image? = (uiImage != nil) ? Image(uiImage: uiImage!) : nil
 		
+		// Return a SwiftUI View that renders an image
 		return ZStack() {
 			if image != nil {
 				content(image!)
 			} else {
-				content(placeholder)
+				content(placeholderImage)
 			}
 		}
+		// load image when the View appears
 		.onAppear(perform: loadImage)
     }
+	
+	// MARK: - Private Helpers
 	
 	private func loadImage() {
 		imageFetcher.fetch()

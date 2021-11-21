@@ -26,14 +26,15 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import Foundation
 import SwiftUI
 
 public class RemoteImageFetcher: ObservableObject {
 	
 	@Published var imageData = Data()
 	
-	let url: URL
+	private let url: URL
+	
+	// MARK - Public APIs
 	
 	public init(url: URL) {
 		self.url = url
@@ -56,6 +57,7 @@ public class RemoteImageFetcher: ObservableObject {
 		return url
 	}
 	
+	/// purge image data to free memory
 	public func purge() {
 		imageData = Data()
 	}
